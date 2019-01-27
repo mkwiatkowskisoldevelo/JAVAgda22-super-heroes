@@ -3,6 +3,8 @@ import factory.SuperHeroCreator;
 import factory.VillainCreator;
 import model.AbstractHero;
 import model.HeroStatistics;
+import model.SuperHero;
+import model.Team;
 import model.TeamType;
 import util.PropertiesUtils;
 
@@ -19,6 +21,37 @@ public class Application {
 
     generateDefaultHero(creatorA);
     generateDefaultHero(creatorB);
+
+    Team teamDC = new Team(TeamType.RED);
+    teamDC.addHeroToTeam(new SuperHero(
+        "Superman",
+        new HeroStatistics(20, 20, 20),
+        TeamType.RED));
+    teamDC.addHeroToTeam(new SuperHero(
+        "Batman",
+        new HeroStatistics(10, 10, 10),
+        TeamType.RED));
+    teamDC.addHeroToTeam(new SuperHero(
+        "Aquaman",
+        new HeroStatistics(15, 20, 10),
+        TeamType.RED));
+
+    Team teamMarvel = new Team(TeamType.BLUE);
+    teamMarvel.addHeroToTeam(new SuperHero(
+        "Iron Man",
+        new HeroStatistics(10, 10, 20),
+        TeamType.BLUE));
+    teamMarvel.addHeroToTeam(new SuperHero(
+        "Thor",
+        new HeroStatistics(30, 10, 20),
+        TeamType.BLUE));
+    teamMarvel.addHeroToTeam(new SuperHero(
+        "Hulk",
+        new HeroStatistics(15, 30, 30),
+        TeamType.BLUE));
+
+    War war = new War(teamDC, teamMarvel);
+    System.out.println(war.startWar());
   }
 
   public static void generateHero(HeroCreator creator) {

@@ -2,8 +2,10 @@ package model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import exceptions.InvalidHeroTeamException;
 import org.junit.jupiter.api.Test;
 
 public class TeamTest {
@@ -18,10 +20,9 @@ public class TeamTest {
     Team team = new Team(TeamType.BLUE);
 
     // wywołanie metody, którą chcemy przetestować
-    boolean result = team.addHeroToTeam(hero);
+    team.addHeroToTeam(hero);
 
     // sprawdzanie wyniku
-    assertTrue(result);
     assertTrue(team.getHeroes().contains(hero));
   }
 
@@ -33,9 +34,8 @@ public class TeamTest {
         TeamType.RED);
     Team team = new Team(TeamType.BLUE);
 
-    boolean result = team.addHeroToTeam(hero);
-
-    assertFalse(result);
+    assertThrows(InvalidHeroTeamException.class,
+        () -> team.addHeroToTeam(hero));
     assertFalse(team.getHeroes().contains(hero));
   }
 

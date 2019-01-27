@@ -1,10 +1,17 @@
 package model;
 
+import static java.util.stream.Collectors.toList;
+
+import exceptions.InvalidHeroTeamException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import lombok.Getter;
+import lombok.ToString;
+import sun.security.x509.SubjectKeyIdentifierExtension;
 
+@ToString
 public class Team {
 
   @Getter
@@ -16,15 +23,19 @@ public class Team {
   @Getter
   private AbstractHero teamLeader;
 
+  @Getter
+  private Side side;
+
   private boolean isTeamBuffed;
 
   public Team(TeamType type) {
     this.type = type;
     this.heroes = new ArrayList<>();
     this.isTeamBuffed = false;
+    this.side = Side.UNKNOWN;
   }
 
-  public boolean addHeroToTeam(AbstractHero hero) {
+  public boolean addHeroToTeamOld(AbstractHero hero) {
     if (this.type.equals(hero.getType())) {
 
       if (this.heroes.isEmpty()
@@ -33,9 +44,62 @@ public class Team {
       }
 
       this.heroes.add(hero);
+
+      //this.checkSide();
+      this.checkSideUsingPower();
+
       return true;
     }
     return false;
+  }
+
+  public void addHeroToTeam(AbstractHero hero) {
+    if (!this.type.equals(hero.getType())) {
+      throw new InvalidHeroTeamException(this, hero);
+    }
+
+    if (this.heroes.isEmpty()
+        || this.teamLeader.getPower() < hero.getPower()) {
+      this.teamLeader = hero;
+    }
+
+    this.heroes.add(hero);
+
+    this.checkSideUsingPower();
+  }
+
+  private void checkSide() {
+    long superHeroesCount = this.heroes.stream()
+        .filter(hero -> hero instanceof SuperHero)
+        .count();
+
+    long villainCount = this.heroes.size() - superHeroesCount;
+
+    setTeamSide(superHeroesCount, villainCount);
+  }
+
+  private void checkSideUsingPower() {
+    int superHeroesPower = this.heroes.stream()
+        .filter(hero -> hero instanceof SuperHero)
+        .mapToInt(AbstractHero::getPower)
+        .sum();
+
+    int villainPower = this.heroes.stream()
+        .filter(hero -> hero instanceof Villlain)
+        .mapToInt(AbstractHero::getPower)
+        .sum();
+
+    setTeamSide(superHeroesPower, villainPower);
+  }
+
+  private void setTeamSide(long superHeroesValue, long villainValue) {
+    if (superHeroesValue > villainValue) {
+      this.side = Side.GOOD;
+    } else if (superHeroesValue < villainValue) {
+      this.side = Side.EVIL;
+    } else {
+      this.side = Side.UNKNOWN;
+    }
   }
 
   public AbstractHero getTeamLeaderOld() {
@@ -84,6 +148,23 @@ public class Team {
       this.heroes.stream()
           .filter(hero -> hero instanceof Villlain)
           .forEach(hero -> hero.getStats().increaseHealth(10));
+      this.teamLeader = getTeamLeaderOld();
     }
+  }
+
+  public boolean isAnyHeroStillAlive() {
+    return this.heroes.stream()
+        .anyMatch(AbstractHero::isAlive);
+  }
+
+  public AbstractHero getRandomAliveHero() {
+    List<AbstractHero> aliveHeroes = this.heroes.stream()
+        .filter(AbstractHero::isAlive)
+        .collect(toList());
+
+    Random random = new Random();
+    int randomNumber = random.nextInt(aliveHeroes.size());
+
+    return aliveHeroes.get(randomNumber);
   }
 }
