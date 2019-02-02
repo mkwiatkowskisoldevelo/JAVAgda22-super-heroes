@@ -6,6 +6,7 @@ import model.HeroStatistics;
 import model.SuperHero;
 import model.Team;
 import model.TeamType;
+import util.AbstractHeroUtils;
 import util.PropertiesUtils;
 
 public class Application {
@@ -52,6 +53,10 @@ public class Application {
 
     War war = new War(teamDC, teamMarvel);
     System.out.println(war.startWar());
+
+    AbstractHeroUtils.saveHeroesToFile(teamMarvel.getHeroes(), "./MarvelHeroes");
+    System.out.println("!!!!!!!!!!!!!!!!!!!!!");
+    System.out.println(AbstractHeroUtils.readHeroesFromFile("./MarvelHeroes"));
   }
 
   public static void generateHero(HeroCreator creator) {

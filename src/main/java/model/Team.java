@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.ToString;
 import sun.security.x509.SubjectKeyIdentifierExtension;
@@ -69,9 +70,7 @@ public class Team {
   }
 
   private void checkSide() {
-    long superHeroesCount = this.heroes.stream()
-        .filter(hero -> hero instanceof SuperHero)
-        .count();
+    long superHeroesCount = getSuperHeroStream().count();
 
     long villainCount = this.heroes.size() - superHeroesCount;
 
@@ -79,8 +78,7 @@ public class Team {
   }
 
   private void checkSideUsingPower() {
-    int superHeroesPower = this.heroes.stream()
-        .filter(hero -> hero instanceof SuperHero)
+    int superHeroesPower = getSuperHeroStream()
         .mapToInt(AbstractHero::getPower)
         .sum();
 
@@ -141,12 +139,10 @@ public class Team {
     if (!isTeamBuffed) {
       this.isTeamBuffed = true;
 
-      this.heroes.stream()
-          .filter(hero -> hero instanceof SuperHero)
+      getSuperHeroStream()
           .forEach(hero -> hero.getStats().increaseDefense(10));
 
-      this.heroes.stream()
-          .filter(hero -> hero instanceof Villlain)
+      getVillainStream()
           .forEach(hero -> hero.getStats().increaseHealth(10));
       this.teamLeader = getTeamLeaderOld();
     }
@@ -166,5 +162,15 @@ public class Team {
     int randomNumber = random.nextInt(aliveHeroes.size());
 
     return aliveHeroes.get(randomNumber);
+  }
+
+  private Stream<AbstractHero> getSuperHeroStream() {
+    return this.heroes.stream()
+        .filter(hero -> hero instanceof SuperHero);
+  }
+
+  private Stream<AbstractHero> getVillainStream() {
+    return this.heroes.stream()
+        .filter(hero -> hero instanceof Villlain);
   }
 }
